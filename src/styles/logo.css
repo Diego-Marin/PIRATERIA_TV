@@ -1,0 +1,59 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-shrink: 0;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+
+a.logo {
+  transition: opacity var(--transition-fast);
+}
+
+a.logo:hover {
+  opacity: 0.85;
+}
+
+.logo__name {
+  font-size: 1.1rem;
+}
+
+.logo__tag {
+  padding: 0.3em 0.55em 0.25em;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+}
+
+.logo--sm .logo__name {
+  font-size: 0.95rem;
+}
+
+.logo--sm .logo__tag {
+  font-size: 0.72rem;
+}
+
+/* En el header, el logo empuja el buscador a la derecha */
+.header__inner > .logo {
+  margin-right: auto;
+}
+
+@media (max-width: 640px) {
+  .logo {
+    gap: 0.4rem;
+    letter-spacing: 0.1em;
+  }
+  .logo__name {
+    font-size: 0.95rem;
+  }
+  .logo__tag {
+    font-size: 0.72rem;
+  }
+}

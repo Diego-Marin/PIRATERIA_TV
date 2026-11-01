@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import Button from '../components/ui/Button.jsx';
 import Loader from '../components/ui/Loader.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
 import MovieGrid from '../components/catalog/MovieGrid.jsx';
@@ -28,17 +27,6 @@ export default function HomePage() {
 
   return (
     <>
-      <section id="inicio" className="hero">
-        <div className="container hero__content">
-          <p className="hero__eyebrow">Sin registro. Sin cuentas.</p>
-          <h1 className="hero__title">Tu biblioteca personal de cine</h1>
-          <p className="hero__text">
-            Entra, explora el catálogo y reproduce tus videos al instante.
-          </p>
-          <Button href="#catalogo">Explorar catálogo</Button>
-        </div>
-      </section>
-
       <section id="catalogo" className="section">
         <div className="container">
           <h2 className="section__title">Catálogo</h2>

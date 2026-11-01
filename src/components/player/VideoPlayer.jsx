@@ -4,9 +4,6 @@ import Loader from '../ui/Loader.jsx';
 const getEmbedUrl = (driveFileId) =>
   `https://drive.google.com/file/d/${driveFileId}/preview`;
 
-const getDriveUrl = (driveFileId) =>
-  `https://drive.google.com/file/d/${driveFileId}/view`;
-
 export default function VideoPlayer({ driveFileId, title }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -22,7 +19,7 @@ export default function VideoPlayer({ driveFileId, title }) {
     <div className="video-player">
       {!isLoaded && (
         <div className="video-player__loading">
-          <Loader label="Cargando video…" />
+          <Loader label="" />
         </div>
       )}
       <iframe
@@ -33,12 +30,6 @@ export default function VideoPlayer({ driveFileId, title }) {
         allowFullScreen
         onLoad={() => setIsLoaded(true)}
       />
-      <p className="video-player__help">
-        ¿No se reproduce? Puede estar procesándose en Drive o sin permiso público.{' '}
-        <a href={getDriveUrl(driveFileId)} target="_blank" rel="noreferrer">
-          Abrir en Drive
-        </a>
-      </p>
     </div>
   );
 }
