@@ -73,7 +73,12 @@ export default function PlayerModal({ movie, onClose }) {
         </button>
         <span className="player-modal__title">{movie.title}</span>
       </div>
-      <VideoPlayer driveFileId={movie.driveFileId} title={movie.title} />
+      <VideoPlayer
+        driveFileId={movie.driveFileId}
+        videoUrl={movie.videoUrl}
+        subtitleUrl={movie.subtitleUrl}
+        title={movie.title}
+      />
     </div>
   );
 }

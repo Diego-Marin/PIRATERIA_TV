@@ -18,7 +18,12 @@ export default function HomePage() {
       setSelectedSeries(movie);
       return;
     }
-    setPlaying({ title: movie.title, driveFileId: movie.driveFileId });
+    setPlaying({
+      title: movie.title,
+      driveFileId: movie.driveFileId,
+      videoUrl: movie.videoUrl,
+      subtitleUrl: movie.subtitleUrl,
+    });
   };
 
   const handleSelectEpisode = (series, ep) => {
@@ -27,6 +32,8 @@ export default function HomePage() {
     setPlaying({
       title: `${series.title} · ${code}${ep.title ? ` · ${ep.title}` : ''}`,
       driveFileId: ep.driveFileId,
+      videoUrl: ep.videoUrl,
+      subtitleUrl: ep.subtitleUrl,
     });
   };
 

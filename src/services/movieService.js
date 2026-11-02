@@ -1,8 +1,15 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 
 const MOVIE_COLUMNS =
-  'id, title, description, category, year, cover_url, drive_file_id, type';
-const EPISODE_COLUMNS = 'id, series_id, season, episode, title, drive_file_id';
+  'id, title, description, category, year, cover_url, drive_file_id, video_url, subtitle_url, type';
+const EPISODE_COLUMNS =
+  'id, series_id, season, episode, title, drive_file_id, video_url, subtitle_url';
+
+// URL directa del video (Cloudflare R2). Vacío → null.
+function normalizeVideoUrl(value) {
+  const url = (value || '').trim();
+  return url || null;
+}
 
 // Acepta un ID suelto o un enlace de Drive y devuelve solo el ID.
 export function normalizeDriveId(value = '') {
@@ -21,12 +28,12 @@ export function normalizeCoverUrl(value = '') {
   const isDriveImage =
     url.includes('drive.google.com/thumbnail') || url.includes('googleusercontent.com');
   if (isDriveImage) return url;
-    if (isDriveLink) {
-    return `https://drive.google.com/thumbnail?id=${normalizeDriveId(url)}&sz=w600`;
+  if (isDriveLink) {
+    return `https://lh3.googleusercontent.com/d/${normalizeDriveId(url)}=w600`;
   }
 
   const isBareDriveId = /^[\w-]{20,}$/.test(url);
-  if (isBareDriveId) return `https://drive.google.com/thumbnail?id=${url}&sz=w600`;
+  if (isBareDriveId) return `https://lh3.googleusercontent.com/d/${url}=w600`;
 
   return url;
 }
@@ -41,6 +48,8 @@ function mapMovie(row) {
     type: ['series', 'course'].includes(row.type) ? row.type : 'movie',
     coverUrl: normalizeCoverUrl(row.cover_url),
     driveFileId: normalizeDriveId(row.drive_file_id),
+    videoUrl: normalizeVideoUrl(row.video_url),
+    subtitleUrl: normalizeVideoUrl(row.subtitle_url),
   };
 }
 
@@ -52,6 +61,8 @@ function mapEpisode(row) {
     episode: row.episode,
     title: row.title,
     driveFileId: normalizeDriveId(row.drive_file_id),
+    videoUrl: normalizeVideoUrl(row.video_url),
+    subtitleUrl: normalizeVideoUrl(row.subtitle_url),
   };
 }
 
