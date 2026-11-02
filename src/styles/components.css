@@ -136,25 +136,6 @@
   border-color: rgba(255, 255, 255, 0.18);
 }
 
-/* Footer */
-.footer {
-  border-top: 1px solid var(--color-border);
-  padding-block: var(--space-5);
-}
-
-.footer__inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-
-.footer__text {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-}
-
 @keyframes fade-up {
   from {
     opacity: 0;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Loader from '../components/ui/Loader.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
+import CategoryTabs, { CATEGORIES } from '../components/catalog/CategoryTabs.jsx';
 import MovieGrid from '../components/catalog/MovieGrid.jsx';
 import SeriesModal from '../components/catalog/SeriesModal.jsx';
 import PlayerModal from '../components/player/PlayerModal.jsx';
@@ -8,11 +9,12 @@ import useMovies from '../hooks/useMovies.js';
 
 export default function HomePage() {
   const { movies, isLoading, error } = useMovies();
+  const [category, setCategory] = useState('movie');
   const [selectedSeries, setSelectedSeries] = useState(null);
   const [playing, setPlaying] = useState(null); // { title, driveFileId }
 
   const handleSelectMovie = (movie) => {
-    if (movie.type === 'series') {
+    if (movie.type === 'series' || movie.type === 'course') {
       setSelectedSeries(movie);
       return;
     }
@@ -20,7 +22,8 @@ export default function HomePage() {
   };
 
   const handleSelectEpisode = (series, ep) => {
-    const code = `T${ep.season} E${ep.episode}`;
+    const isCourse = series.type === 'course';
+    const code = `${isCourse ? 'M' : 'T'}${ep.season} ${isCourse ? 'C' : 'E'}${ep.episode}`;
     setPlaying({
       title: `${series.title} · ${code}${ep.title ? ` · ${ep.title}` : ''}`,
       driveFileId: ep.driveFileId,
@@ -32,22 +35,25 @@ export default function HomePage() {
     if (error) {
       return <EmptyState title="No se pudo cargar el catálogo" message={error} />;
     }
-    if (movies.length === 0) {
+
+    const visible = movies.filter((movie) => movie.type === category);
+    if (visible.length === 0) {
+      const label = CATEGORIES.find((c) => c.id === category)?.label.toLowerCase();
       return (
         <EmptyState
-          title="Aún no hay películas"
+          title={`Aún no hay ${label}`}
           message="Agrega filas a la tabla movies en Supabase y aparecerán aquí."
         />
       );
     }
-    return <MovieGrid movies={movies} onSelectMovie={handleSelectMovie} />;
+    return <MovieGrid movies={visible} onSelectMovie={handleSelectMovie} />;
   };
 
   return (
     <>
       <section id="catalogo" className="section">
         <div className="container">
-          <h2 className="section__title">Catálogo</h2>
+          <CategoryTabs active={category} onChange={setCategory} />
           <div className="section__body">{renderCatalog()}</div>
         </div>
       </section>

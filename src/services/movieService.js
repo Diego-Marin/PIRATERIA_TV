@@ -38,7 +38,7 @@ function mapMovie(row) {
     description: row.description,
     category: row.category,
     year: row.year,
-    type: row.type === 'series' ? 'series' : 'movie',
+    type: ['series', 'course'].includes(row.type) ? row.type : 'movie',
     coverUrl: normalizeCoverUrl(row.cover_url),
     driveFileId: normalizeDriveId(row.drive_file_id),
   };

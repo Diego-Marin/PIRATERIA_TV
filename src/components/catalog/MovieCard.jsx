@@ -1,9 +1,11 @@
 import { useState } from 'react';
 
+const TYPE_LABELS = { series: 'Serie', course: 'Curso' };
+
 export default function MovieCard({ movie, onSelect }) {
   const { title, year, category, coverUrl, type } = movie;
   const [hasImageError, setHasImageError] = useState(false);
-  const meta = [type === 'series' ? 'Serie' : null, year, category].filter(Boolean).join(' · ');
+  const meta = [TYPE_LABELS[type], year, category].filter(Boolean).join(' · ');
   const showCover = coverUrl && !hasImageError;
 
   return (
@@ -11,7 +13,7 @@ export default function MovieCard({ movie, onSelect }) {
       className="movie-card"
       type="button"
       onClick={() => onSelect(movie)}
-      aria-label={type === 'series' ? `Ver capítulos de ${title}` : `Reproducir ${title}`}
+      aria-label={type !== 'movie' ? `Ver contenido de ${title}` : `Reproducir ${title}`}
     >
       <div className="movie-card__poster">
         {showCover ? (

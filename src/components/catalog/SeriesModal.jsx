@@ -8,6 +8,7 @@ import useEpisodes from '../../hooks/useEpisodes.js';
 export default function SeriesModal({ series, active = true, onSelectEpisode, onClose }) {
   const { episodes, isLoading, error } = useEpisodes(series.id);
   const [selectedSeason, setSelectedSeason] = useState(null);
+  const isCourse = series.type === 'course';
 
   const seasons = useMemo(
     () => [...new Set(episodes.map((ep) => ep.season))].sort((a, b) => a - b),
@@ -45,7 +46,7 @@ export default function SeriesModal({ series, active = true, onSelectEpisode, on
     if (episodes.length === 0) {
       return (
         <EmptyState
-          title="Aún no hay capítulos"
+          title={isCourse ? 'Aún no hay clases' : 'Aún no hay capítulos'}
           message="Agrega filas a la tabla episodes en Supabase."
         />
       );
@@ -63,7 +64,7 @@ export default function SeriesModal({ series, active = true, onSelectEpisode, on
               className={`season-tab${season === currentSeason ? ' season-tab--active' : ''}`}
               onClick={() => setSelectedSeason(season)}
             >
-              Temporada {season}
+              {isCourse ? 'Módulo' : 'Temporada'} {season}
             </button>
           ))}
         </div>
@@ -78,7 +79,7 @@ export default function SeriesModal({ series, active = true, onSelectEpisode, on
               >
                 <span className="episode-item__num">{ep.episode}</span>
                 <span className="episode-item__title">
-                  {ep.title || `Capítulo ${ep.episode}`}
+                  {ep.title || `${isCourse ? 'Clase' : 'Capítulo'} ${ep.episode}`}
                 </span>
                 <svg className="episode-item__play" viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M8 5v14l11-7z" />
