@@ -53,11 +53,6 @@ export default function PlayerModal({ movie, onClose }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Cierra al tocar el fondo negro, no al interactuar con el video.
-  const handleBackdropClick = (event) => {
-    if (event.target === event.currentTarget) onClose();
-  };
-
   return (
     <div
       ref={modalRef}
@@ -65,16 +60,19 @@ export default function PlayerModal({ movie, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label={movie.title}
-      onClick={handleBackdropClick}
     >
-      <button
-        className="player-modal__close"
-        type="button"
-        onClick={onClose}
-        aria-label="Cerrar"
-      >
-        ✕
-      </button>
+      {/* Franja propia: el botón ya no se superpone a los controles de Drive */}
+      <div className="player-modal__bar">
+        <button
+          className="player-modal__close"
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+        >
+          ✕
+        </button>
+        <span className="player-modal__title">{movie.title}</span>
+      </div>
       <VideoPlayer driveFileId={movie.driveFileId} title={movie.title} />
     </div>
   );
