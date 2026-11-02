@@ -21,10 +21,20 @@
 }
 
 .header__inner {
+  position: relative;
   height: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-4);
+}
+
+/* Si se activa el buscador, queda a la derecha y el logo sigue centrado */
+.header__inner .search-input {
+  position: absolute;
+  right: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 /* Search input */
@@ -149,10 +159,7 @@
 
 /* Responsive */
 @media (max-width: 640px) {
-  .header__inner {
-    justify-content: space-between;
-  }
   .search-input {
-    max-width: 180px;
+    max-width: 150px;
   }
 }

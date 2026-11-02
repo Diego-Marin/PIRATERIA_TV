@@ -21,12 +21,12 @@ export function normalizeCoverUrl(value = '') {
   const isDriveImage =
     url.includes('drive.google.com/thumbnail') || url.includes('googleusercontent.com');
   if (isDriveImage) return url;
-  if (isDriveLink) {
-    return `https://lh3.googleusercontent.com/d/${normalizeDriveId(url)}=w600`;
+    if (isDriveLink) {
+    return `https://drive.google.com/thumbnail?id=${normalizeDriveId(url)}&sz=w600`;
   }
 
   const isBareDriveId = /^[\w-]{20,}$/.test(url);
-  if (isBareDriveId) return `https://lh3.googleusercontent.com/d/${url}=w600`;
+  if (isBareDriveId) return `https://drive.google.com/thumbnail?id=${url}&sz=w600`;
 
   return url;
 }
