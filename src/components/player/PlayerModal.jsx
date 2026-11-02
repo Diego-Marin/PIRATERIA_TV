@@ -1,7 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import VideoPlayer from './VideoPlayer.jsx';
 
+// `movie` solo necesita { title, driveFileId }.
 export default function PlayerModal({ movie, onClose }) {
+  const modalRef = useRef(null);
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') onClose();
@@ -17,6 +20,39 @@ export default function PlayerModal({ movie, onClose }) {
     };
   }, [onClose]);
 
+  // Al abrir: pantalla completa del dispositivo y orientación horizontal.
+  // Funciona porque el modal se abre desde un clic del usuario.
+  useEffect(() => {
+    const el = modalRef.current;
+
+    (async () => {
+      try {
+        if (el.requestFullscreen) await el.requestFullscreen({ navigationUI: 'hide' });
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        await screen.orientation?.lock?.('landscape');
+      } catch {
+        // iOS / navegadores sin soporte: queda el modal a pantalla completa de la página.
+      }
+    })();
+
+    // Si el usuario sale de pantalla completa, se cierra el reproductor.
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) onClose();
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      try {
+        screen.orientation?.unlock?.();
+      } catch {
+        // sin soporte
+      }
+      if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Cierra al tocar el fondo negro, no al interactuar con el video.
   const handleBackdropClick = (event) => {
     if (event.target === event.currentTarget) onClose();
@@ -24,6 +60,7 @@ export default function PlayerModal({ movie, onClose }) {
 
   return (
     <div
+      ref={modalRef}
       className="player-modal"
       role="dialog"
       aria-modal="true"

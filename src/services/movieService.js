@@ -1,10 +1,13 @@
 import { supabase, isSupabaseConfigured } from './supabaseClient.js';
 
-const MOVIE_COLUMNS = 'id, title, description, category, year, cover_url, drive_file_id';
+const MOVIE_COLUMNS =
+  'id, title, description, category, year, cover_url, drive_file_id, type';
+const EPISODE_COLUMNS = 'id, series_id, season, episode, title, drive_file_id';
 
 // Acepta un ID suelto o un enlace de Drive y devuelve solo el ID.
 export function normalizeDriveId(value = '') {
-  const withoutPath = value.includes('/d/') ? value.split('/d/')[1] : value;
+  const text = value || '';
+  const withoutPath = text.includes('/d/') ? text.split('/d/')[1] : text;
   return withoutPath.trim().split(/[/?]/)[0];
 }
 
@@ -35,17 +38,33 @@ function mapMovie(row) {
     description: row.description,
     category: row.category,
     year: row.year,
+    type: row.type === 'series' ? 'series' : 'movie',
     coverUrl: normalizeCoverUrl(row.cover_url),
     driveFileId: normalizeDriveId(row.drive_file_id),
   };
 }
 
-export async function getMovies() {
+function mapEpisode(row) {
+  return {
+    id: row.id,
+    seriesId: row.series_id,
+    season: row.season,
+    episode: row.episode,
+    title: row.title,
+    driveFileId: normalizeDriveId(row.drive_file_id),
+  };
+}
+
+function assertConfigured() {
   if (!isSupabaseConfigured) {
     throw new Error(
       'Faltan las variables VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en el archivo .env.'
     );
   }
+}
+
+export async function getMovies() {
+  assertConfigured();
 
   const { data, error } = await supabase
     .from('movies')
@@ -57,4 +76,21 @@ export async function getMovies() {
   }
 
   return data.map(mapMovie);
+}
+
+export async function getEpisodes(seriesId) {
+  assertConfigured();
+
+  const { data, error } = await supabase
+    .from('episodes')
+    .select(EPISODE_COLUMNS)
+    .eq('series_id', seriesId)
+    .order('season', { ascending: true })
+    .order('episode', { ascending: true });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data.map(mapEpisode);
 }

@@ -134,14 +134,151 @@
   overflow-wrap: anywhere;
 }
 
+/* Modal de serie: temporadas y capítulos */
+.series-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
+  animation: fade-in 200ms ease both;
+}
+
+.series-modal__panel {
+  width: min(720px, 100%);
+  max-height: 90dvh;
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.series-modal__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.series-modal__title {
+  font-size: var(--text-xl);
+}
+
+.series-modal__meta {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.series-modal__description {
+  margin-top: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.series-modal__close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.series-modal__seasons {
+  display: flex;
+  gap: var(--space-2);
+  margin-block: var(--space-4) var(--space-3);
+  padding-bottom: var(--space-1);
+  overflow-x: auto;
+}
+
+.season-tab {
+  flex-shrink: 0;
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.season-tab:hover {
+  background: var(--color-surface-hover);
+}
+
+.season-tab--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+
+.episode-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.episode-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0.75rem var(--space-3);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.episode-item:hover,
+.episode-item:focus-visible {
+  background: var(--color-surface-hover);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.episode-item__num {
+  min-width: 2rem;
+  color: var(--color-accent);
+  font-family: var(--font-heading);
+  font-weight: 800;
+  text-align: center;
+}
+
+.episode-item__title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+}
+
+.episode-item__play {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  fill: var(--color-text-muted);
+}
+
+.episode-item:hover .episode-item__play {
+  fill: var(--color-accent);
+}
+
 /* Modal del reproductor: pantalla completa, solo video */
 .player-modal {
   position: fixed;
   inset: 0;
   z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: #000;
   animation: fade-in 200ms ease both;
 }
@@ -160,11 +297,12 @@
   cursor: pointer;
 }
 
-/* Reproductor: el video ocupa el mayor tamaño posible sin recortarse */
+/* El iframe ocupa todo el modal; Drive ajusta el video y sus controles. */
 .video-player {
-  position: relative;
-  width: min(100vw, calc(100dvh * 16 / 9));
-  aspect-ratio: 16 / 9;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .video-player__frame {
@@ -175,15 +313,6 @@
   background: #000;
 }
 
-.video-player__loading {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
 .video-player--message {
   display: flex;
   align-items: center;
@@ -191,15 +320,6 @@
   padding: var(--space-4);
   text-align: center;
   color: var(--color-text-muted);
-}
-
-/* Celular en horizontal: usar toda la pantalla */
-@media (orientation: landscape) and (max-height: 600px) {
-  .video-player {
-    width: 100%;
-    height: 100%;
-    aspect-ratio: auto;
-  }
 }
 
 @keyframes fade-in {

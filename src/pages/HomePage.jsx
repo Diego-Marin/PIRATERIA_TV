@@ -2,12 +2,30 @@ import { useState } from 'react';
 import Loader from '../components/ui/Loader.jsx';
 import EmptyState from '../components/ui/EmptyState.jsx';
 import MovieGrid from '../components/catalog/MovieGrid.jsx';
+import SeriesModal from '../components/catalog/SeriesModal.jsx';
 import PlayerModal from '../components/player/PlayerModal.jsx';
 import useMovies from '../hooks/useMovies.js';
 
 export default function HomePage() {
   const { movies, isLoading, error } = useMovies();
-  const [selectedMovie, setSelectedMovie] = useState(null);
+  const [selectedSeries, setSelectedSeries] = useState(null);
+  const [playing, setPlaying] = useState(null); // { title, driveFileId }
+
+  const handleSelectMovie = (movie) => {
+    if (movie.type === 'series') {
+      setSelectedSeries(movie);
+      return;
+    }
+    setPlaying({ title: movie.title, driveFileId: movie.driveFileId });
+  };
+
+  const handleSelectEpisode = (series, ep) => {
+    const code = `T${ep.season} E${ep.episode}`;
+    setPlaying({
+      title: `${series.title} · ${code}${ep.title ? ` · ${ep.title}` : ''}`,
+      driveFileId: ep.driveFileId,
+    });
+  };
 
   const renderCatalog = () => {
     if (isLoading) return <Loader label="Cargando catálogo…" />;
@@ -22,7 +40,7 @@ export default function HomePage() {
         />
       );
     }
-    return <MovieGrid movies={movies} onSelectMovie={setSelectedMovie} />;
+    return <MovieGrid movies={movies} onSelectMovie={handleSelectMovie} />;
   };
 
   return (
@@ -34,9 +52,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {selectedMovie && (
-        <PlayerModal movie={selectedMovie} onClose={() => setSelectedMovie(null)} />
+      {selectedSeries && (
+        <SeriesModal
+          series={selectedSeries}
+          active={!playing}
+          onSelectEpisode={handleSelectEpisode}
+          onClose={() => setSelectedSeries(null)}
+        />
       )}
+
+      {playing && <PlayerModal movie={playing} onClose={() => setPlaying(null)} />}
     </>
   );
 }
