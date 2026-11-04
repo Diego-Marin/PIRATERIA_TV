@@ -23,9 +23,13 @@ const PAUSE = 'M6 5h4v14H6zM14 5h4v14h-4z';
 const CAPTIONS =
   'M19 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm-8 7H9.5v-.5h-2v3h2V13H11v1a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1zm7 0h-1.5v-.5h-2v3h2V13H18v1a1 1 0 0 1-1 1h-3a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1z';
 const FULLSCREEN ='M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z';
+const VOLUME =
+  'M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z';
+const MUTED =
+  'M16.5 12A4.5 4.5 0 0 0 14 7.97v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z';
 
 // Reproductor propio para videos con URL directa (por ejemplo Cloudflare R2).
-export default function NativePlayer({ src, title, subtitleUrl }) {
+export default function NativePlayer({ src, title, subtitleUrl, onClose }) {
   const videoRef = useRef(null);
   const hideTimer = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -42,6 +46,10 @@ export default function NativePlayer({ src, title, subtitleUrl }) {
   const [corsFailed, setCorsFailed] = useState(false);
   const hasSubtitles = Boolean(subtitleUrl) && !corsFailed;
   const [isFullscreen, setIsFullscreen] = useState(Boolean(document.fullscreenElement));
+  const [muted, setMuted] = useState(false);
+  const [volume, setVolume] = useState(1);
+  // true si el navegador no pudo decodificar la pista de audio (AC3, DTS, EAC3…).
+  const [noAudio, setNoAudio] = useState(false);
 
   const scheduleHide = useCallback(() => {
     clearTimeout(hideTimer.current);
@@ -69,6 +77,43 @@ export default function NativePlayer({ src, title, subtitleUrl }) {
   }, []);
 
   useEffect(() => () => clearTimeout(hideTimer.current), []);
+
+  const toggleMute = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    if (!video.muted && video.volume === 0) video.volume = 1;
+    reveal();
+  };
+
+  const handleVolume = (event) => {
+    const video = videoRef.current;
+    if (!video) return;
+    const value = Number(event.target.value);
+    video.volume = value;
+    video.muted = value === 0;
+    reveal();
+  };
+
+  // Detecta videos sin audio reproducible: tras 2 s sonando, si el navegador
+  // no decodificó ni un byte de audio, avisa al usuario.
+  useEffect(() => {
+    if (!isPlaying) return undefined;
+    const id = setTimeout(() => {
+      const video = videoRef.current;
+      if (!video || video.currentTime < 1) return;
+      const tracks = video.audioTracks;
+      const decoded = video.webkitAudioDecodedByteCount;
+      if (
+        video.mozHasAudio === false ||
+        (tracks && tracks.length === 0) ||
+        (typeof decoded === 'number' && decoded === 0)
+      ) {
+        setNoAudio(true);
+      }
+    }, 2000);
+    return () => clearTimeout(id);
+  }, [isPlaying]);
 
   useEffect(() => {
     const onFullscreenChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
@@ -181,6 +226,10 @@ export default function NativePlayer({ src, title, subtitleUrl }) {
           updateBuffered();
         }}
         onProgress={updateBuffered}
+        onVolumeChange={(event) => {
+          setMuted(event.currentTarget.muted);
+          setVolume(event.currentTarget.volume);
+        }}
         onError={() => {
           if (hasSubtitles) {
             setCorsFailed(true);
@@ -201,8 +250,22 @@ export default function NativePlayer({ src, title, subtitleUrl }) {
         <div className="native-player__error">No se pudo reproducir este video.</div>
       )}
 
+      {noAudio && (
+        <div className="native-player__notice" role="status">
+          Este video no tiene audio compatible con el navegador (probablemente AC3/DTS).
+          Recodifica el audio a AAC.
+        </div>
+      )}
+
       {!hasError && (
         <div className={`native-player__controls${controlsVisible ? '' : ' is-hidden'}`}>
+          <div className="native-player__top">
+            <button type="button" className="player-close" onClick={onClose} aria-label="Cerrar">
+              ✕
+            </button>
+            <span className="native-player__title">{title}</span>
+          </div>
+
           {!isPlaying && !isBuffering && (
             <button
               type="button"
@@ -243,6 +306,25 @@ export default function NativePlayer({ src, title, subtitleUrl }) {
               aria-label="Posición del video"
             />
             <span className="native-player__time">{formatTime(duration)}</span>
+
+            <button
+              type="button"
+              className="np-btn"
+              onClick={toggleMute}
+              aria-label={muted || volume === 0 ? 'Activar sonido' : 'Silenciar'}
+            >
+              <Icon d={muted || volume === 0 ? MUTED : VOLUME} />
+            </button>
+            <input
+              className="native-player__volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={muted ? 0 : volume}
+              onChange={handleVolume}
+              aria-label="Volumen"
+            />
 
             <button type="button" className="np-btn np-btn--text" onClick={cycleSpeed}>
               {SPEEDS[speedIndex]}x

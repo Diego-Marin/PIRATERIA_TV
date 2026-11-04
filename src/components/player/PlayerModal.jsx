@@ -36,8 +36,10 @@ export default function PlayerModal({ movie, onClose }) {
     })();
 
     // Si el usuario sale de pantalla completa, se cierra el reproductor.
+    // Con Drive no: su iframe tiene su propia pantalla completa y al salir
+    // de ella el navegador puede disparar este evento y cerrar todo.
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement) onClose();
+      if (!document.fullscreenElement && movie.videoUrl) onClose();
     };
     document.addEventListener('fullscreenchange', handleFullscreenChange);
 
@@ -61,23 +63,12 @@ export default function PlayerModal({ movie, onClose }) {
       aria-modal="true"
       aria-label={movie.title}
     >
-      {/* Franja propia: el botón ya no se superpone a los controles de Drive */}
-      <div className="player-modal__bar">
-        <button
-          className="player-modal__close"
-          type="button"
-          onClick={onClose}
-          aria-label="Cerrar"
-        >
-          ✕
-        </button>
-        <span className="player-modal__title">{movie.title}</span>
-      </div>
       <VideoPlayer
         driveFileId={movie.driveFileId}
         videoUrl={movie.videoUrl}
         subtitleUrl={movie.subtitleUrl}
         title={movie.title}
+        onClose={onClose}
       />
     </div>
   );

@@ -1,0 +1,148 @@
+/* Importar DESPUÉS de los demás estilos en main.jsx:
+   import './styles/overrides.css'; */
+
+/* ---------- Header: logo centrado ---------- */
+.header .header__inner {
+  justify-content: center;
+}
+
+/* ---------- Home: menos aire arriba ---------- */
+#catalogo.section {
+  padding-top: var(--space-3);
+}
+
+/* ---------- Reproductor: ocupa toda la pantalla ---------- */
+.player-modal {
+  background: #000;
+}
+
+.player-modal .video-player {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+}
+
+.player-modal .native-player {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.player-modal .native-player__video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+}
+
+.player-modal .video-player {
+  overflow: hidden;
+}
+
+/* Drive: width/height/transform los pone VideoPlayer.jsx según el tamaño real */
+.player-modal .video-player__frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+}
+
+/* Botón cerrar flotante (no ocupa espacio) */
+.player-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  color: #fff;
+  font-size: 0.95rem;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+}
+
+.player-close:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Drive: botón cerrar abajo-izquierda de la esquina superior, sobre el iframe */
+.video-player > .player-close {
+  position: absolute;
+  top: max(10px, env(safe-area-inset-top));
+  left: max(10px, env(safe-area-inset-left));
+  z-index: 3;
+}
+
+/* Drive: tapa el botón "abrir en pestaña nueva" (arriba a la derecha) */
+.video-player__popout-shield {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 72px;
+  height: 64px;
+}
+
+/* Native: barra superior superpuesta, se oculta junto con los controles */
+.native-player__top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 28px
+    max(10px, env(safe-area-inset-left));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent);
+  pointer-events: none;
+}
+
+.native-player__top > * {
+  pointer-events: auto;
+}
+
+.native-player__title {
+  min-width: 0;
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Volumen */
+.native-player__volume {
+  width: 72px;
+  accent-color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .native-player__volume {
+    display: none;
+  }
+}
+
+/* Aviso: video sin audio compatible */
+.native-player__notice {
+  position: absolute;
+  left: 50%;
+  bottom: 88px;
+  z-index: 3;
+  max-width: min(90%, 460px);
+  padding: 0.6rem 0.9rem;
+  color: #fff;
+  font-size: var(--text-sm);
+  text-align: center;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+  transform: translateX(-50%);
+}
